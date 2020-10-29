@@ -4,71 +4,62 @@ import 'package:intl/intl.dart';
 
 class TransactionList extends StatelessWidget {
   final List<Transaction> transacions;
+  final Function deleteTransaction;
 
-  TransactionList({this.transacions});
+  TransactionList({this.transacions, this.deleteTransaction});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 500,
-      child: transacions.isEmpty
-          ? Column(
-              children: <Widget>[
-                Text('Don\'t have any transactions!'),
-                SizedBox(
-                  height: 15,
-                  
+    return transacions.isEmpty
+        ? LayoutBuilder(builder: (ctx,contrains) {
+          return Column(
+            children: <Widget>[
+              Text('Don\'t have any transactions!'),
+              SizedBox(
+                height: 15,
+              ),
+              Container(
+                child: Image.asset(
+                  'assets/images/waiting.png',
+                  fit: BoxFit.cover,
                 ),
-                Container(
-                  child: Image.asset(
-                    'assets/images/waiting.png',
-                    fit: BoxFit.cover,
+                height: contrains.maxHeight * 0.6,
+              )
+            ],
+          );
+        },)
+        : ListView.builder(
+            itemBuilder: (context, index) {
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+                child: ListTile(
+                  leading: FittedBox(
+                      child: CircleAvatar(
+                    radius: 30,
+                    child: Padding(
+                      padding: EdgeInsets.all(6),
+                      child: FittedBox(
+                          child: Text('\$${transacions[index].amount}')),
+                    ),
+                  )),
+                  title: Text(
+                    transacions[index].title,
+                    style: Theme.of(context).textTheme.bodyText1,
                   ),
-                  height: 200,
-                )
-              ],
-            )
-          : ListView.builder(
-              itemBuilder: (context, index) {
-                return Card(
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                                width: 2,
-                                color: Theme.of(context).primaryColor)),
-                        margin:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                        padding: EdgeInsets.all(10),
-                        child: Text(
-                          '\$${transacions[index].amount}',
-                          style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15),
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            transacions[index].title,
-                            style: Theme.of(context).textTheme.bodyText1,
-                          ),
-                          Text(
-                            DateFormat('yyyy/MM/dd')
-                                .format(transacions[index].date),
-                            style: Theme.of(context).textTheme.bodyText2,
-                          )
-                        ],
-                      )
-                    ],
+                  subtitle: Text(DateFormat.yMMMMd().format(
+                    transacions[index].date,
+                  )),
+                  trailing: IconButton(
+                    icon: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).errorColor,
+                    ),
+                    onPressed: () => deleteTransaction(transacions[index].id),
                   ),
-                );
-              },
-              itemCount: transacions.length,
-            ),
-    );
+                ),
+              );
+            },
+            itemCount: transacions.length,
+          );
   }
 }
